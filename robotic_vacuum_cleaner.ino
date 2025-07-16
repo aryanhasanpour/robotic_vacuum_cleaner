@@ -14,12 +14,12 @@ LiquidCrystal lcd(8, 9, 10, 4, 5, 6, 7);
   unsigned char speed = 0;
   unsigned long lastDebounceTime=0,debounceDelay=50,currentTime,turndelaytime,lasttime;
   char str[20];
-  int calib_point[5],deg2,i=0; 
+  int calib_point[5],deg2,i=0,beriz[5]; 
   unsigned char sorayya=0;
   QMC5883 GY271;
 
   void setup(){
- config();
+  config();
 
   lcd.setCursor(0, 0);
   lcd.print("zakiyeh");
@@ -32,7 +32,13 @@ LiquidCrystal lcd(8, 9, 10, 4, 5, 6, 7);
 }
   void loop(){ 
   deg=getdeg();
-
+  Serial.println(deg);
+      
+      lcd.clear();
+      lcd.setCursor(7,1);
+      GY271.calculate();
+      lcd.print(GY271.getHeadingDegree('z'));
+    
   if(i>4){   //khesht avval
     if(sorayya==0)
     { 
@@ -54,112 +60,45 @@ LiquidCrystal lcd(8, 9, 10, 4, 5, 6, 7);
 
       turnright();
     } 
+     Serial.println(deg);
+   
+    beriz[1]=calib_point[1];
+    beriz[2]=calib_point[2];
+    beriz[3]=calib_point[3];
+    beriz[4]=calib_point[4];
+   
+  
+    
+   if(((360>=beriz[1] && 350 < beriz[1]) || (10>=beriz[1] && 0 < beriz[1])) || ((360>=beriz[3] && 350 < beriz[3]) || (10>=beriz[3] && 0 < beriz[3])) ){
+   
+    turnright();
+    calib_point[3]=beriz[4];
+    calib_point[4]=beriz[1];
+    calib_point[1]=beriz[2];
+    calib_point[2]=beriz[3];
+
     
 
-    s1: 
-      lcd.clear();
-      lcd.setCursor(0, 1);
-      lcd.print("S1");
-     while((digitalRead(touchforward1) && digitalRead(touchforward2))){
-     goforward(1);
-     }
-     stop();
-     delay(500);
-     gobackward();
-     
-    s2:
-      lcd.clear();
-      lcd.setCursor(0, 1);
-      lcd.print("S2");
-      delay(400);
-      turnright();
-    s3:
-      lcd.clear();
-      lcd.setCursor(0, 1);
-      lcd.print("S3");
-      goforward2();
-      delay(1500);
-      stop();
-      delay(300);
-    s4:
-      lcd.clear();
-      lcd.setCursor(0, 1);
-      lcd.print("S4");
-      delay(400);
-      turnleft();
-      delay(400);
-      while((digitalRead(touchforward1) && digitalRead(touchforward2))){
-        lasttime=millis();
-      goforward(1);
-      }
-      currentTime=millis()-lasttime;
-      if(currentTime>1000){
-        goto s1;
-        }else{
-      stop();
-      delay(500);
-      gobackward();
-      delay(500);
-      turnright();
-      delay(500);
-      turnright();
-          
-          }
-      
-      
-    s5:
-      lcd.clear();
-      lcd.setCursor(0, 1);
-      lcd.print("S5");
-      delay(400);
-       while((digitalRead(touchforward1) && digitalRead(touchforward2))){
-      goforward(3);
-       }
-     stop();
-     delay(200);
-     gobackward();
-     
-    s6:
-      lcd.clear();
-      lcd.setCursor(0, 1);
-      lcd.print("S6");
-      delay(400);
-      turnleft();
-    s7:
-      lcd.clear();
-      lcd.setCursor(0, 1);
-      lcd.print("S7");
-     delay(400);
-     goforward2();
-     delay(1500);
-     stop();
-    
-     s8:
-      lcd.clear();
-      lcd.setCursor(0, 1);
-      lcd.print("S8");
+    Serial.println("cal jadid");
+    Serial.println(calib_point[1]);
+    Serial.println(calib_point[2]);
+    Serial.println(calib_point[3]);
+    Serial.println(calib_point[4]);
+    Serial.println("cal ghadim");
+    Serial.println(beriz[1]);
+    Serial.println(beriz[2]);
+    Serial.println(beriz[3]);
+    Serial.println(beriz[4]);
 
-      /////////
-      delay(400);
-      turnright();
-      delay(400);
-      while((digitalRead(touchforward1) && digitalRead(touchforward2))){
-        lasttime=millis();
-      goforward(3);
-      }
-      currentTime=millis()-lasttime;
-      if(currentTime>1000){
-        goto s1;
-        }else{
-      stop();
-      delay(500);
-      gobackward();
-      delay(500);
-      turnleft();
-      delay(500);
-      turnleft();
-          
-          }
+while(1){
+    algorithm2();
+}
+    } 
+else{
+  while(1){
+    algorithm();
+      }}
+      
       /////////
       delay(400);
      
@@ -329,3 +268,209 @@ LiquidCrystal lcd(8, 9, 10, 4, 5, 6, 7);
             turndelaytime=(millis()-currentTime)/4;
       
       }
+  void algorithm(void){//////////////////////////////////////////////////////////////////////////////////////////////////////////
+         s1: 
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("S1");
+     while((digitalRead(touchforward1) && digitalRead(touchforward2))){
+     goforward(1);
+     }
+     stop();
+     delay(500);
+     gobackward();
+     
+    s2:
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("S2");
+      delay(400);
+      turnright();
+    s3:
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("S3");
+      goforward2();
+      delay(1500);
+      stop();
+      delay(300);
+    s4:
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("S4");
+      delay(400);
+      turnleft();
+      delay(400);
+      while((digitalRead(touchforward1) && digitalRead(touchforward2))){
+        lasttime=millis();
+      goforward(1);
+      }
+      currentTime=millis()-lasttime;
+      if(currentTime>1000){
+        goto s1;
+        }else{
+      stop();
+      delay(500);
+      gobackward();
+      delay(500);
+      turnright();
+      delay(500);
+      turnright();
+          
+          }    
+    s5:
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("S5");
+      delay(400);
+       while((digitalRead(touchforward1) && digitalRead(touchforward2))){
+      goforward(3);
+       }
+     stop();
+     delay(200);
+     gobackward();
+     
+    s6:
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("S6");
+      delay(400);
+      turnleft();
+    s7:
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("S7");
+     delay(400);
+     goforward2();
+     delay(1500);
+     stop();
+    
+     s8:
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("S8");
+
+      delay(400);
+       turnright();
+      delay(400);
+      while((digitalRead(touchforward1) && digitalRead(touchforward2))){
+        lasttime=millis();
+      goforward(3);
+      }
+      currentTime=millis()-lasttime;
+      if(currentTime>1000){
+        goto s5;
+        }else{
+      stop();
+      delay(500);
+      gobackward();
+      delay(500);
+      turnleft();
+      delay(500);
+      turnleft();
+        
+        }}
+  void algorithm2(void){
+               s1: 
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("S1");
+     while((digitalRead(touchforward1) && digitalRead(touchforward2))){
+     goforward(1);
+     }
+     stop();
+     delay(500);
+     gobackward();
+     
+    s2:
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("S2");
+      delay(400);
+      turnleft();
+    s3:
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("S3");
+      goforward2();
+      delay(1500);
+      stop();
+      delay(300);
+    s4:
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("S4");
+      delay(400);
+      turnright();
+      delay(400);
+      while((digitalRead(touchforward1) && digitalRead(touchforward2))){
+        lasttime=millis();
+      goforward(1);
+      }
+      currentTime=millis()-lasttime;
+      if(currentTime>1000){
+        goto s1;
+        }else{
+      stop();
+      delay(500);
+      gobackward();
+      delay(500);
+      turnleft();
+      delay(500);
+      turnleft();
+          
+          }    
+    s5:
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("S5");
+      delay(400);
+       while((digitalRead(touchforward1) && digitalRead(touchforward2))){
+      goforward(3);
+       }
+     stop();
+     delay(200);
+     gobackward();
+     
+    s6:
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("S6");
+      delay(400);
+      turnright();
+    s7:
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("S7");
+     delay(400);
+     goforward2();
+     delay(1500);
+     stop();
+    
+     s8:
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("S8");
+
+      delay(400);
+       turnleft();
+      delay(400);
+      while((digitalRead(touchforward1) && digitalRead(touchforward2))){
+        lasttime=millis();
+      goforward(3);
+      }
+      currentTime=millis()-lasttime;
+      if(currentTime>1000){
+        goto s5;
+        }else{
+      stop();
+      delay(500);
+      gobackward();
+      delay(500);
+      turnright();
+      delay(500);
+      turnright();
+        
+        }
+        }
+        
